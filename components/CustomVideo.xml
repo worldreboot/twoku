@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<component name="CustomVideo" extends="Video">
+
+    <interface>
+        <field id="thumbnailInfo" type="assocarray" />
+        <field id="videoBookmarks" type="assocarray" />
+    </interface>
+    
+    <script type="text/brightscript" uri="pkg:/components/CustomVideo.brs" />
+
+    <children>
+        <Group id="progressBar" translation="[0,620]" >
+            <MaskGroup maskuri = "pkg:/images/vertical-mask.png" masksize = "[10,150]" translation="[0,-50]" >
+                <Rectangle width="1280" height="150" color="0x000000FF" />
+            </MaskGroup>
+            <SimpleLabel
+                id="timeProgress"
+                fontUri="pkg:/fonts/Roobert-Regular.ttf"
+                translation="[0,20]" />
+            <Rectangle
+                id="progressBarBase"
+                color="0xFFFFFFFF"
+                width="1280"
+                height="5"
+                translation="[0,0]" />
+            <Rectangle
+                id="progressBarProgress"
+                color="0x9147FFFF"
+                width="0"
+                height="5"
+                translation="[0,0]" />
+            <Poster
+                id="controlButton"
+                uri="pkg:/images/pause.png"
+                width="0.0"
+                height="0.0"
+                translation="[625,20]" />
+            <Rectangle
+                id="controlSelectRect"
+                color="0xFFFFFF99"
+                width="50"
+                height="50"
+                translation="[620,15]" />
+            <Group id="thumbnails" clippingRect="[0,0,220,124]" translation="[0,-150]" >
+                <Poster
+                    id="thumbnailImage" />
+            </Group>
+        </Group>
+        <LoadingIndicator 
+            id="loadingIndicator"
+            imageUri="pkg:/images/spinner.png"
+            clockwise="true"
+            spinInterval="1"
+            fadeInterval="0.2"
+            width="64"
+            height="64"
+            imageWidth="100"
+            imageHeight="98"
+            backgroundOpacity="0"
+            centered="false"
+            translation="[580,300]" />
+    </children>
+
+</component>

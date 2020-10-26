@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<component name="ChannelStreamItem" extends="Group">
+
+    <interface>
+        <field id="itemContent" type="node" onChange="showContent" />
+    </interface>
+
+    <script type="text/brightscript" uri="pkg:/components/ChannelStreamItem.brs" />
+
+    <children>
+
+        <Poster 
+            id="itemThumbnail"
+            height = "504"
+			width = "896"
+			loadWidth = "896"
+			loadHeight = "504"
+			loadDisplayMode = "scaleToFit" />
+        <Label
+            id = "itemTitle"
+            height = "30"
+            width = "896"
+            horizAlign = "left"
+            color = "0xFFFFFFFF"
+            translation = "[0, 520]" >
+            <Font role = "font" uri = "pkg:/fonts/Roobert-SemiBold.ttf" size = "16" />
+		</Label>
+            
+    </children>
+
+</component>
