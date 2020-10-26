@@ -56,7 +56,7 @@ function getStreamLink() as Object
     url.RetainBodyOnError(true)
     url.SetCertificatesFile("common:/certs/ca-bundle.crt")
     url.InitClientCertificates()
-    url.SetUrl("https://id.twitch.tv/oauth2/token?client_id=w9msa6phhl3u8s2jyjcmshrfjczj2y&client_secret=k38wg2xhm8oh26ghvl60narz4te9on&code=" + code + "&grant_type=authorization_code&redirect_uri=http://localhost:3000/auth")
+    url.SetUrl("https://id.twitch.tv/oauth2/token?client_id=w9msa6phhl3u8s2jyjcmshrfjczj2y&client_secret=&code=" + code + "&grant_type=authorization_code&redirect_uri=http://localhost:3000/auth")
     port = CreateObject("roMessagePort")
     url.SetMessagePort(port)
 
