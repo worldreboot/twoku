@@ -6,19 +6,21 @@ function onStreamerChange()
 
     stream_link = getStreamLink()
 
-    m.top.streamUrl = stream_link
+    m.top.finished = true
 
 end function
 
-function saveLogin(access_token, refresh_token) as Void
+function saveLogin(access_token, refresh_token, login) as Void
     sec = createObject("roRegistrySection", "LoggedInUserData")
     sec.Write("UserToken", access_token)
     sec.Write("RefreshToken", refresh_token)
+    sec.Write("LoggedInUser", login)
+    m.global.setField("userToken", access_token)
     sec.Flush()
 end function
 
-function getStreamLink() as Object
-    access_token_url = "https://twoku-web.herokuapp.com/code"
+function logUser()
+    access_token_url = "http://72.136.77.60:3000/"
 
     url = CreateObject("roUrlTransfer")
     url.EnableEncodings(true)
@@ -28,46 +30,58 @@ function getStreamLink() as Object
 
     url.SetUrl(access_token_url)
     response_string = url.GetToString()
-    ? "getAuth response: "; response_string
-    
-    tcpListen = CreateObject("roStreamSocket")
-        
-    addr = CreateObject("roSocketAddress")
-    addr.SetAddress("192.168.0.16:1337")
-    
-    tcpListen.SetSendToAddress(addr)
-    tcpListen.notifyReadable(true)
-    tcpListen.Connect()
-    tcpListen.SendStr(response_string + Chr(13) + Chr(10))
 
-    ? "isConnected() "; tcpListen.isConnected()
+    return ""
+end function
 
-    code = ""
-    while true
-        if tcpListen.GetCountRcvBuf() > 0
-            code = tcpListen.ReceiveStr(512)
-            print code
-            exit while
-        end if
-    end while
+function getStreamLink() as Object
+    m.top.finished = false
+
+    enter_code_url = "https://twoku-web.herokuapp.com/register"
 
     url = CreateObject("roUrlTransfer")
     url.EnableEncodings(true)
     url.RetainBodyOnError(true)
     url.SetCertificatesFile("common:/certs/ca-bundle.crt")
     url.InitClientCertificates()
-    url.SetUrl("https://id.twitch.tv/oauth2/token?client_id=w9msa6phhl3u8s2jyjcmshrfjczj2y&client_secret=k38wg2xhm8oh26ghvl60narz4te9on&code=" + code + "&grant_type=authorization_code&redirect_uri=http://localhost:3000/auth")
+    url.SetUrl(enter_code_url)
+    response_string = url.GetToString()
+    ? "getAuth enter code: "; response_string
+    m.top.code = response_string
+
+    url = CreateObject("roUrlTransfer")
+    url.EnableEncodings(true)
+    url.RetainBodyOnError(true)
+    url.SetCertificatesFile("common:/certs/ca-bundle.crt")
+    url.InitClientCertificates()
+    url.SetUrl("https://twoku-web.herokuapp.com/unregister")
     port = CreateObject("roMessagePort")
     url.SetMessagePort(port)
+    
+    while true
+        print url.AsyncPostFromString("code=" + response_string)
+        msg = port.WaitMessage(0)
+        if msg.GetResponseCode() = 200
+            exit while
+        end if
+        sleep(5000)
+    end while
 
-    print url.AsyncPostFromString("")
-    msg = wait(0, port)
     print msg.GetString()
 
     oauth_token = ParseJson(msg.GetString())
 
-    ? "oauth_token.access_token: "; oauth_token.access_token
-    saveLogin(oauth_token.access_token, oauth_token.refresh_token)
+    url = CreateObject("roUrlTransfer")
+    url.EnableEncodings(true)
+    url.RetainBodyOnError(true)
+    url.SetCertificatesFile("common:/certs/ca-bundle.crt")
+    url.InitClientCertificates()
+    url.SetUrl("https://id.twitch.tv/oauth2/validate")
+    url.AddHeader("Authorization", "Bearer " + oauth_token.access_token)
+    response_string = ParseJson(url.GetToString())
+
+    ? "oauth_token.refresh_token "; oauth_token.refresh_token
+    saveLogin(oauth_token.access_token, oauth_token.refresh_token, response_string.login)
 
     return ""
 end function

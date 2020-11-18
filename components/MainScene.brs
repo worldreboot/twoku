@@ -7,6 +7,7 @@ function init()
     m.homeScene = m.top.findNode("homeScene")
     m.categoryScene = m.top.findNode("categoryScene")
     m.channelPage = m.top.findNode("channelPage")
+    m.loginPage = m.top.findNode("loginPage")
 
     m.keyboardGroup.observeField("streamUrl", "onStreamChange")
     m.keyboardGroup.observeField("streamerSelectedName", "onStreamerSelected")
@@ -24,6 +25,8 @@ function init()
 
     m.channelPage.observeField("videoUrl", "onStreamChangeFromChannelPage")
     m.channelPage.observeField("streamUrl", "onStreamChange")
+
+    m.loginPage.observeField("finished", "onLoginFinish")
 
     m.top.backgroundColor = "0x18181BFF"
     m.top.backgroundUri = ""
@@ -47,8 +50,17 @@ function init()
     m.testtimer.control = "start"
     m.testtimer.ObserveField("fire", "refreshFollows")
 
-    getAuth = createObject("RoSGNode", "GetAuth")
-    getAuth.control = "RUN"
+    'getAuth = createObject("RoSGNode", "GetAuth")
+    'getAuth.control = "RUN"
+
+    if checkReset() = "false"
+        sec = createObject("roRegistrySection", "LoggedInUserData")
+        sec.Write("UserToken", "")
+        sec.Write("RefreshToken", "")
+        sec.Write("LoggedInUser", "")
+        setReset("true")
+    end if
+    
 
     loggedInUser = checkIfLoggedIn()
     if loggedInUser <> invalid
@@ -78,6 +90,13 @@ function init()
         m.global.addFields({chatOption: false})
     end if
 
+    userToken = checkUserToken()
+    if userToken <> invalid and userToken <> ""
+        m.global.addFields({userToken: userToken})
+    else
+        m.global.addFields({userToken: ""})
+    end if
+
     videoBookmarks = checkVideoBookmarks()
     ? "MainScene >> videoBookmarks > " videoBookmarks
     if videoBookmarks <> ""
@@ -99,6 +118,22 @@ function init()
 
     m.homeScene.setFocus(true)
 end function
+
+sub onLoginFinish()
+    if m.loginPage.finished = true
+        loggedInUser = checkIfLoggedIn()
+        if loggedInUser <> invalid
+            m.getUser.loginRequested = loggedInUser
+            m.getUser.control = "RUN"
+            m.login = loggedInUser
+        end if
+        m.loginPage.visible = false
+        m.homeScene.visible = false
+        m.homeScene.visible = true
+        m.homeScene.setFocus(true)
+        m.loginPage.finished = false
+    end if
+end sub
 
 sub onBearerTokenReceived()
     m.global.addFields({appBearerToken: m.getToken.appBearerToken})
@@ -154,6 +189,22 @@ sub onStreamerSelected()
     m.currentScene = "channel"
 end sub
 
+function checkReset()
+    sec = createObject("roRegistrySection", "LoggedInUserData")
+    if sec.Exists("Reset")
+        return sec.Read("Reset")
+    end if
+    return "false"
+end function
+
+function checkUserToken()
+    sec = createObject("roRegistrySection", "LoggedInUserData")
+    if sec.Exists("UserToken")
+        return sec.Read("UserToken")
+    end if
+    return ""
+end function
+
 function checkVideoBookmarks()
     sec = createObject("roRegistrySection", "VideoSettings")
     if sec.Exists("VideoBookmarks")
@@ -194,6 +245,12 @@ function checkIfLoggedIn() as Dynamic
     return invalid
 end function
 
+function setReset(word as String) as Void
+    sec = createObject("roRegistrySection", "LoggedInUserData")
+    sec.Write("Reset", "true")
+    sec.Flush()
+end function
+
 function saveLogin() as Void
     sec = createObject("roRegistrySection", "LoggedInUserData")
     sec.Write("LoggedInUser", m.homeScene.loggedInUserName)
@@ -206,8 +263,11 @@ function onHeaderButtonPress()
         m.keyboardGroup.visible = true
         m.keyboardGroup.setFocus(true)
     else if m.homeScene.buttonPressed = "login"
-        m.top.dialog = createObject("RoSGNode", "LoginPrompt")
-        m.top.dialog.observeField("buttonSelected", "onLogin")
+        'm.top.dialog = createObject("RoSGNode", "LoginPrompt")
+        'm.top.dialog.observeField("buttonSelected", "onLogin")
+        m.homeScene.visible = false
+        m.loginPage.visible = true
+        m.loginPage.setFocus(true)
     else if m.homeScene.buttonPressed = "options"
         m.homeScene.visible = false
         m.options.visible = true
@@ -372,6 +432,13 @@ function onKeyEvent(key, press) as Boolean
                 m.homeScene.setFocus(true)
             end if
             handled = true
+        else if m.loginPage.visible and key = "back"
+            ? "MainScene >> back from login page"
+            m.loginPage.visible = false
+            m.homeScene.visible = false
+            m.homeScene.visible = true
+            m.homeScene.setFocus(true)
+            return true
         end if
     end if
 

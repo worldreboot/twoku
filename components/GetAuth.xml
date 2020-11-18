@@ -3,8 +3,8 @@
 <component name="GetAuth" extends="Task">
 
     <interface>
-        <field id="streamerRequested" type="string" />
-        <field id="streamUrl" type="uri" />
+        <field id="code" type="string" />
+        <field id="finished" type="bool" value="false" />
     </interface>
     
     <script type="text/brightscript" uri="pkg:/components/GetAuth.brs" />

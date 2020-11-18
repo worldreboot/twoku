@@ -67,7 +67,7 @@
                 <SimpleLabel
                     id="loginButton"
                     translation="[835,72]"
-                    text="Login (ID)"
+                    text="Login"
                     color="0xEFEFF1FF"
                     fontSize="18"
                     fontUri="pkg:/fonts/Roobert-SemiBold.ttf" >

@@ -56,6 +56,13 @@ function getSearchResults() as Object
 
     response_string = url.GetToString()
     search = ParseJson(response_string)
+
+    if search.status <> invalid and search.status = 401
+        ? "401"
+        refreshToken()
+        return getSearchResults()
+    end if
+
     game_ids_url = "https://api.twitch.tv/helix/games?id="
     user_ids_url = "https://api.twitch.tv/helix/users?id="
     first = true

@@ -30,6 +30,10 @@
         <ChannelPage
             id="channelPage"
             visible="false" />
+        
+        <LoginPage 
+            id="loginPage"
+            visible="false" />
 
         <Chat 
            id="chat"
