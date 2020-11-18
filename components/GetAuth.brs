@@ -44,6 +44,7 @@ function getStreamLink() as Object
     url.RetainBodyOnError(true)
     url.SetCertificatesFile("common:/certs/ca-bundle.crt")
     url.InitClientCertificates()
+
     url.SetUrl(enter_code_url)
     response_string = url.GetToString()
     ? "getAuth enter code: "; response_string
@@ -55,6 +56,7 @@ function getStreamLink() as Object
     url.SetCertificatesFile("common:/certs/ca-bundle.crt")
     url.InitClientCertificates()
     url.SetUrl("https://twoku-web.herokuapp.com/unregister")
+
     port = CreateObject("roMessagePort")
     url.SetMessagePort(port)
     
